@@ -7,9 +7,19 @@ then
     exit
 fi
 
-apt update
-apt -y upgrade
+t=$(date)
+echo "INFO: starting: ${t}"
 
-apt -y install xterm emacs
+echo "INFO: apt update"
+apt update > /tmp/apt-update.log 2>&1
+
+echo "INFO: apt upgrade"
+apt -y upgrade > /tmp/apt-upgrade.log 2>&1
+
+echo "INFO: apt install xterm emacs"
+apt -y install xterm emacs > /tmp/apt-installs.log 2>&1
+
+t=$(date)
+echo "INFO: done: ${t}"
 
 reboot now
