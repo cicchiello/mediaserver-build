@@ -7,8 +7,8 @@
       - added raspberry pi connect support
       - using raspi-config, set:
            i local en_US.UTF-8
-      - > sudo apt update
-      - > sudo apt upgrade
-      - reboot
-   *
-      
+      - > sudo apt install git
+   * install the mediaserver-build repo:
+      > git clone https://github.com/cicchiello/mediaserver-build.git
+   * run setup0.bsh
+      > sudo /home/pi/mediaserver-build/setup0.bsh

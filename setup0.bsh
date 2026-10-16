@@ -1,9 +1,9 @@
 #!/bin/bash
 
-user='whoami'
+user=$(whoami)
 if [ "$user" |= "root" ]
 then
-    echo 'ERROR: Sorry, this shell script must be run as root; perhaps you meant to use "sudo"?'
+    echo "ERROR: Sorry, this shell script must be run as root; perhaps you meant to use \"sudo\"?"
     exit
 fi
 
