@@ -10,4 +10,6 @@ fi
 apt update
 apt -y upgrade
 
+apt -y install xterm emacs
+
 reboot now
