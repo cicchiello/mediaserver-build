@@ -20,12 +20,12 @@ echo "deb [signed-by=/usr/share/keyrings/couchdb-archive-keyring.gpg] https://ap
 | sudo tee /etc/apt/sources.list.d/couchdb.list >/dev/null
 
 
-# load installation-specific secrets (${dir}/couch-secrets.sh isn't placed in the repo)
+# load installation-specific secrets (${dir}/couchdb-secrets.sh isn't placed in the repo)
 #   Defines:
 #      COUCHDB_PASSWORD
 #      COUCHDB_COOKIE
 #      
-source ${dir}/couch-secrets.sh
+source ${dir}/couchdb-secrets.sh
 
 
 # 2. Pre-seed the configuration answers into the debconf database

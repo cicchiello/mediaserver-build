@@ -9,6 +9,10 @@ fi
 
 d=$(dirname $0)
 
+echo "INFO: invoking ${d}/setup0.bsh"
 ${d}/setup0.bsh
 
+echo "INFO: invoking ${d}/setup-couchdb.bsh"
 ${d}/setup-couchdb.bsh
+
+echo "INFO: All done!"

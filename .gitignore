@@ -3,4 +3,4 @@
 
 
 # ignore installation-specific secrets
-couch-secrets.sh
+couchdb-secrets.sh
