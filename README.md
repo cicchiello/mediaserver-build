@@ -1,0 +1,14 @@
+# Mediaserver build repo
+
+# Step 1:
+   * Using Raspberry Pi Imager, I installed the latest Raspberry Pi OS (Lite) image
+      - set host: mediaserver-stage (to be changed to just "mediaserver" upon deployment)
+      - set user/pswd: pi/<My-fruit>-<home#>
+      - added raspberry pi connect support
+      - using raspi-config, set:
+           i local en_US.UTF-8
+      - > sudo apt update
+      - > sudo apt upgrade
+      - reboot
+   *
+      
