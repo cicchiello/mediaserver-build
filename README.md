@@ -23,7 +23,7 @@
   OR:
 
    * run setup0.bsh
-      > sudo /home/pi/mediaserver-build/setup0.bsh  # takes ~8 minutes
+      > sudo /home/pi/mediaserver-build/setup0.bsh  # takes ~2 minutes
    * run setup-couchdb.bsh
       > sudo /home/pi/mediaserver-build/setup-couchdb.bsh
 

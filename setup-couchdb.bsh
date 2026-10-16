@@ -10,14 +10,18 @@ fi
 t=$(date)
 echo "INFO: starting CouchDb install: ${t}"
 
+##
+## CouchDb install
+##
+
 dir=$(dirname $0)
 
-curl https://couchdb.apache.org/repo/keys.asc | gpg --dearmor | sudo tee /usr/share/keyrings/couchdb-archive-keyring.gpg >/dev/null 2>&1
+curl https://couchdb.apache.org/repo/keys.asc | gpg --dearmor | tee /usr/share/keyrings/couchdb-archive-keyring.gpg >/dev/null 2>&1
 
 source /etc/os-release
 
 echo "deb [signed-by=/usr/share/keyrings/couchdb-archive-keyring.gpg] https://apache.jfrog.io/artifactory/couchdb-deb/ ${VERSION_CODENAME} main" \
-| sudo tee /etc/apt/sources.list.d/couchdb.list >/dev/null
+| tee /etc/apt/sources.list.d/couchdb.list >/dev/null
 
 
 # load installation-specific secrets (${dir}/couchdb-secrets.sh isn't placed in the repo)
@@ -29,7 +33,7 @@ source ${dir}/couchdb-secrets.sh
 
 
 # 2. Pre-seed the configuration answers into the debconf database
-sudo debconf-set-selections <<EOF
+debconf-set-selections <<EOF
 couchdb couchdb/mode select standalone
 couchdb couchdb/mode seen true
 couchdb couchdb/nodename string couchdb@localhost
@@ -46,13 +50,94 @@ EOF
 
 
 # 3. Install CouchDB completely non-interactively
-sudo apt update
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y couchdb > /tmp/install-couchdb
+apt update
+DEBIAN_FRONTEND=noninteractive apt-get install -y couchdb > /tmp/install-couchdb
 
 
-# confirm install 
+# confirm couchdb install 
 curl http://127.0.0.0:5984
 
+
+##
+## Java 8.x install
+##
+
+# Add the Adoptium signing key and repository
+mkdir -p /etc/apt/keyrings
+curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc > /dev/null
+
+echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list > /dev/null
+
+# Update and install Java 8 JRE
+apt update
+apt install -y temurin-8-jre unzip
+
+
+##
+## Clouseau install
+##
+
+# Fetch the Clouseau package (adjust the version if a newer specific target is needed)
+#  example url: https://github.com/cloudant-labs/clouseau/releases/download/3.5.0/clouseau-3.5.0-dist.zip
+CLOUSEAU_VERSION="3.5.0"
+CLOUSEAU_ROOT_URL="https://github.com/cloudant-labs/clouseau/releases/download"
+CLOUSEAU_URL="${CLOUSEAU_ROOT_URL}/${CLOUSEAU_VERSION}/clouseau-${CLOUSEAU_VERSION}-dist.zip"
+wget ${CLOUSEAU_URL} -O /tmp/clouseau.zip 
+
+
+# Extract it to /opt
+unzip /tmp/clouseau.zip -d /opt/
+ln -s /opt/clouseau-${CLOUSEAU_VERSION} /opt/clouseau
+chown -R couchdb:couchdb /opt/clouseau-${CLOUSEAU_VERSION}
+
+# prepare clouseau.ini
+cat ${dir}/clouseau-example.ini | sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE)/g" > /opt/clouseau/clouseau.ini
+
+# prepare clouseau's log4j
+cp ${dir}/clouseau-log4j.properties /opt/clouseau/log4j.properties
+
+# point couchdb at clouseau
+tee -a /opt/couchdb/etc/local.ini > /dev/null <<EOF
+
+[dreyfus]
+name = clouseau@127.0.0.1
+EOF
+
+exit
+
+# setup clouseau to be started by systemd
+tee /etc/systemd/system/clouseau.service > /dev/null <<EOF
+[Unit]
+Description=Clouseau Full-Text Search Service for CouchDB
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/clouseau
+ExecStart=/bin/sh -c "java -server -Xmx2g -Dsun.net.inetaddr.ttl=30 -Dfile.encoding=UTF-8 -cp 'lib/*' com.cloudant.clouseau.Main clouseau.ini"
+Restart=always
+RestartSec=5
+User=couchdb
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+
+# Start everything
+systemctl daemon-reload
+systemctl enable clouseau.service
+systemctl start clouseau.service
+
+# Restart CouchDB to pick up the changes
+systemctl restart couchdb
+
+
+
+
+##
+## Done
+##
 
 # if we get here, everything worked!
 t=$(date)
