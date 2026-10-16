@@ -1,0 +1,14 @@
+#!/bin/bash
+
+user=$(whoami)
+if [ "$user" != "root" ]
+then
+    echo "ERROR: Sorry, this shell script must be run as root; perhaps you meant to use \"sudo\"?"
+    exit
+fi
+
+d=$(dirname $0)
+
+${d}/setup0.bsh
+
+${d}/setup-couchdb.bsh

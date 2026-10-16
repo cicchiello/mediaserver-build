@@ -1,2 +1,6 @@
 # ignore emacs stuff
 *~
+
+
+# ignore installation-specific secrets
+couch-secrets.sh

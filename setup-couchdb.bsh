@@ -1,0 +1,59 @@
+#!/bin/bash
+
+user=$(whoami)
+if [ "$user" != "root" ]
+then
+    echo "ERROR: Sorry, this shell script must be run as root; perhaps you meant to use \"sudo\"?"
+    exit
+fi
+
+t=$(date)
+echo "INFO: starting CouchDb install: ${t}"
+
+dir=$(dirname $0)
+
+curl https://couchdb.apache.org/repo/keys.asc | gpg --dearmor | sudo tee /usr/share/keyrings/couchdb-archive-keyring.gpg >/dev/null 2>&1
+
+source /etc/os-release
+
+echo "deb [signed-by=/usr/share/keyrings/couchdb-archive-keyring.gpg] https://apache.jfrog.io/artifactory/couchdb-deb/ ${VERSION_CODENAME} main" \
+| sudo tee /etc/apt/sources.list.d/couchdb.list >/dev/null
+
+
+# load installation-specific secrets (${dir}/couch-secrets.sh isn't placed in the repo)
+#   Defines:
+#      COUCHDB_PASSWORD
+#      COUCHDB_COOKIE
+#      
+source ${dir}/couch-secrets.sh
+
+
+# 2. Pre-seed the configuration answers into the debconf database
+sudo debconf-set-selections <<EOF
+couchdb couchdb/mode select standalone
+couchdb couchdb/mode seen true
+couchdb couchdb/nodename string couchdb@localhost
+couchdb couchdb/nodename seen true
+couchdb couchdb/cookie string ${COUCHDB_COOKIE}
+couchdb couchdb/cookie seen true
+couchdb couchdb/bindaddress string 0.0.0.0
+couchdb couchdb/bindaddress seen true
+couchdb couchdb/adminpass password ${COUCHDB_PASSWORD}
+couchdb couchdb/adminpass seen true
+couchdb couchdb/adminpass_again password ${COUCHDB_PASSWORD}
+couchdb couchdb/adminpass_again seen true
+EOF
+
+
+# 3. Install CouchDB completely non-interactively
+sudo apt update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y couchdb > /tmp/install-couchdb
+
+
+# confirm install 
+curl http://127.0.0.0:5984
+
+
+# if we get here, everything worked!
+t=$(date)
+echo "INFO: CouchDb installed: ${t}"

@@ -19,4 +19,6 @@ To Do:
    - clouseau
    - ntfs3
    - wireguard
+   - apache
+   - install all my applications...
    

@@ -8,7 +8,7 @@ then
 fi
 
 t=$(date)
-echo "INFO: starting: ${t}"
+echo "INFO: starting setup0 step: ${t}"
 
 echo "INFO: apt update"
 apt update > /tmp/apt-update.log 2>&1
@@ -17,7 +17,7 @@ echo "INFO: apt upgrade"
 apt -y upgrade > /tmp/apt-upgrade.log 2>&1
 
 echo "INFO: apt install xterm emacs"
-apt -y install xterm emacs ntfs-3g > /tmp/apt-installs.log 2>&1
+apt -y install xterm emacs ntfs-3g curl apt-transport-https gnupg > /tmp/apt-installs.log 2>&1
 
 t=$(date)
 echo "INFO: done: ${t}"
