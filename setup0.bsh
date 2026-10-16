@@ -17,9 +17,8 @@ echo "INFO: apt upgrade"
 apt -y upgrade > /tmp/apt-upgrade.log 2>&1
 
 echo "INFO: apt install xterm emacs"
-apt -y install xterm emacs > /tmp/apt-installs.log 2>&1
+apt -y install xterm emacs ntfs-3g > /tmp/apt-installs.log 2>&1
 
 t=$(date)
 echo "INFO: done: ${t}"
 
-reboot now
