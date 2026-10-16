@@ -103,7 +103,15 @@ tee -a /opt/couchdb/etc/local.ini > /dev/null <<EOF
 name = clouseau@127.0.0.1
 EOF
 
+
+
+
+#exit here for now; if successful, check what follows
 exit
+
+
+
+
 
 # setup clouseau to be started by systemd
 tee /etc/systemd/system/clouseau.service > /dev/null <<EOF
@@ -132,6 +140,21 @@ systemctl start clouseau.service
 # Restart CouchDB to pick up the changes
 systemctl restart couchdb
 
+
+# validate
+/tmp/expected <<EOF
+{
+  "all_nodes": [
+    "couchdb@localhost",
+    "clouseau@127.0.0.1"
+  ],
+  "cluster_nodes": [
+    "couchdb@localhost"
+  ]
+}
+EOF
+
+curl -s -u admin:${COUCHDB_PASSWORD} http://127.0.0.1/_membership
 
 
 
