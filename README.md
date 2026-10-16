@@ -3,7 +3,7 @@
 # Step 1: prepare sdcard and first boot
    * choose a good sdcard -- the performance variances can be drastic!
    * I've been using 16GB size, 'cause it's a good size to allow for images to be moved around and saved
-   * Using Raspberry Pi Imager, I installed the latest Raspberry Pi OS (Lite) image
+   * Using Raspberry Pi Imager, I installed the latest Raspberry Pi 64bit OS (Lite) image
       - set host: mediaserver-stage (to be changed to just "mediaserver" upon deployment)
       - set user/pswd: pi/<My-fruit>-<home#>
       - added raspberry pi connect support
@@ -20,18 +20,17 @@
    * setup everything else
       > sudo /home/pi/mediaserver-build/setup-all.bsh
 
-  OR:
+  ... OR sequentially:
 
    * run setup0.bsh
       > sudo /home/pi/mediaserver-build/setup0.bsh  # takes ~2 minutes
    * run setup-couchdb.bsh
-      > sudo /home/pi/mediaserver-build/setup-couchdb.bsh
+      > sudo /home/pi/mediaserver-build/setup-couchdb.bsh  # takes ??? minutes
 
 
 To Do:
    - couchdb
    - clouseau
-   - ntfs3
    - wireguard
    - apache
    - static ip config

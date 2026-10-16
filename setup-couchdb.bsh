@@ -36,7 +36,7 @@ source ${dir}/couchdb-secrets.sh
 debconf-set-selections <<EOF
 couchdb couchdb/mode select standalone
 couchdb couchdb/mode seen true
-couchdb couchdb/nodename string couchdb@localhost
+couchdb couchdb/nodename string couchdb@127.0.0.1
 couchdb couchdb/nodename seen true
 couchdb couchdb/cookie string ${COUCHDB_COOKIE}
 couchdb couchdb/cookie seen true
@@ -62,16 +62,18 @@ curl http://127.0.0.0:5984
 ## Java 8.x install
 ##
 
-# Add the Adoptium signing key and repository
-mkdir -p /etc/apt/keyrings
-curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc > /dev/null
+##### Add the Adoptium signing key and repository
+####mkdir -p /etc/apt/keyrings
+####curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc > /dev/null
+####
+####echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list > /dev/null
+####
+##### Update and install Java 8 JRE
+####apt install -y temurin-8-jre unzip
 
-echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list > /dev/null
-
-# Update and install Java 8 JRE
+# Install the official, native Java 21 headless runtime package
 apt update
-apt install -y temurin-8-jre unzip
-
+sudo apt install -y openjdk-21-jre-headless
 
 ##
 ## Clouseau install
@@ -90,8 +92,15 @@ unzip /tmp/clouseau.zip -d /opt/
 ln -s /opt/clouseau-${CLOUSEAU_VERSION} /opt/clouseau
 chown -R couchdb:couchdb /opt/clouseau-${CLOUSEAU_VERSION}
 
-# prepare clouseau.ini
-cat ${dir}/clouseau-example.ini | sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE)/g" > /opt/clouseau/clouseau.ini
+# prepare clouseau.conf
+echo "DEBUG: Using COUCHDB_COOKIE=${COUCHDB_COOKIE}"
+cat ${dir}/clouseau.conf | sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE}/g" > /opt/clouseau/clouseau.conf
+echo "DEBUG: got past the clouseau.conf setup"
+
+##### prepare clouseau.ini
+####echo "DEBUG: Using COUCHDB_COOKIE=${COUCHDB_COOKIE}"
+####cat ${dir}/clouseau-example.ini | sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE}/g" > /opt/clouseau/clouseau.ini
+####echo "DEBUG: got past the clouseau.ini setup"
 
 # prepare clouseau's log4j
 cp ${dir}/clouseau-log4j.properties /opt/clouseau/log4j.properties
@@ -102,14 +111,6 @@ tee -a /opt/couchdb/etc/local.ini > /dev/null <<EOF
 [dreyfus]
 name = clouseau@127.0.0.1
 EOF
-
-
-
-
-#exit here for now; if successful, check what follows
-exit
-
-
 
 
 
@@ -141,20 +142,21 @@ systemctl start clouseau.service
 systemctl restart couchdb
 
 
+# {"all_nodes":["couchdb@127.0.0.1"],"cluster_nodes":["couchdb@127.0.0.1"]}
 # validate
 /tmp/expected <<EOF
 {
   "all_nodes": [
-    "couchdb@localhost",
+    "couchdb@127.0.0.1",
     "clouseau@127.0.0.1"
   ],
   "cluster_nodes": [
-    "couchdb@localhost"
+    "couchdb@127.0.0.1"
   ]
 }
 EOF
 
-curl -s -u admin:${COUCHDB_PASSWORD} http://127.0.0.1/_membership
+curl -s -u admin:${COUCHDB_PASSWORD} http://127.0.0.1:5984/_membership
 
 
 
