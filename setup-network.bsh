@@ -113,7 +113,15 @@ done < "$file"
 ##
 cat "${dir}/imp/fstab" >> /etc/fstab
 
+sleep 1
+systemctl daemon-reload
+
+sleep 1
 mount -a
+
+sleep 1
+systemctl daemon-reload
+
 echo "INFO: defined /etc/fastab"
 
 
