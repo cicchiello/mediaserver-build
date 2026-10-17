@@ -42,27 +42,37 @@ nmcli connection add type ethernet ifname ${ETH_IFACE} con-name mediaserver-eth 
 ## WiFi
 ##
 
-echo "INFO: configuring ${WIFI_IFACE} for ${WIFI_SSID}"
-# the regulatory domain must be set or the radio stays blocked on a fresh image
-iw reg set ${WIFI_COUNTRY} 2>/dev/null
-rfkill unblock wifi
-nmcli radio wifi on
-
-recreate mediaserver-wifi
-nmcli connection add type wifi ifname ${WIFI_IFACE} con-name mediaserver-wifi ssid "${WIFI_SSID}" \
-      wifi-sec.key-mgmt wpa-psk wifi-sec.psk "${WIFI_PASSWORD}" connection.autoconnect yes > /dev/null
-if [ -n "${WIFI_ADDRESS}" ]
+if [ -n "${WIFI_IFACE}" ]
 then
-    nmcli connection modify mediaserver-wifi ipv4.method manual ipv4.addresses ${WIFI_ADDRESS} \
-          ipv4.gateway ${WIFI_GATEWAY} ipv4.dns "${ETH_DNS}"
+    echo "INFO: configuring ${WIFI_IFACE} for ${WIFI_SSID}"
+    # the regulatory domain must be set or the radio stays blocked on a fresh image
+    iw reg set ${WIFI_COUNTRY} 2>/dev/null
+    rfkill unblock wifi
+    nmcli radio wifi on
+
+    recreate mediaserver-wifi
+    nmcli connection add type wifi ifname ${WIFI_IFACE} con-name mediaserver-wifi ssid "${WIFI_SSID}" \
+          wifi-sec.key-mgmt wpa-psk wifi-sec.psk "${WIFI_PASSWORD}" connection.autoconnect yes > /dev/null
+    if [ -n "${WIFI_ADDRESS}" ]
+    then
+        nmcli connection modify mediaserver-wifi ipv4.method manual ipv4.addresses ${WIFI_ADDRESS} \
+              ipv4.gateway ${WIFI_GATEWAY} ipv4.dns "${ETH_DNS}"
+    fi
 fi
+
 
 ##
 ## Bring up (ethernet last-but-one: a static change over ssh may drop this session)
 ##
 
-nmcli connection up mediaserver-wifi || echo "WARN: wifi didn't come up (is the SSID in range?)"
-nmcli connection up mediaserver-eth  || echo "WARN: ethernet didn't come up (is a cable plugged in?)"
+if [ -n "${WIFI_IFACE}" ]
+then
+    nmcli connection up mediaserver-wifi || echo "WARN: wifi didn't come up (is the SSID in range?)"
+fi
+if [ -n "${ETH_IFACE}" ]
+then
+    nmcli connection up mediaserver-eth  || echo "WARN: ethernet didn't come up (is a cable plugged in?)"
+fi
 
 echo "INFO: current state:"
 nmcli -f NAME,DEVICE,STATE connection show --active
