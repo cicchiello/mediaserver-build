@@ -17,8 +17,8 @@ apt-get update > ${log}
 echo "INFO: apt-get upgrade"
 apt-get -y upgrade > ${log}
 
-echo "INFO: apt-get install xterm emacs ntfs-3g curl apt-transport-https gnupg jq"
-apt-get -y install xterm emacs ntfs-3g curl apt-transport-https gnupg jq > ${log}
+echo "INFO: apt-get install xterm emacs ntfs-3g nfs-common nfs-kernel-server curl apt-transport-https gnupg jq"
+apt-get -y install xterm emacs ntfs-3g nfs-common nfs-kernel-server curl apt-transport-https gnupg jq > ${log}
 
 t=$(date)
 echo "INFO: done setup0.bsh: ${t}"

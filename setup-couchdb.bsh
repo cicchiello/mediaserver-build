@@ -57,6 +57,10 @@ log=/tmp/setup-couchdb.log
 apt-get update > /tmp/couchdb-apt-update.log
 DEBIAN_FRONTEND=noninteractive apt-get install -y couchdb > ${log} 2>&1
 
+# provide implementation-specific local.ini file
+mv /opt/couchdb/etc/local.ini /opt/couchdb/etc/local.ini.pristine
+cp ${dir}/imp/couchdb-local.ini /opt/couchdb/etc/local.ini
+
 
 # confirm couchdb install
 echo "INFO: Testing couchdb life:"

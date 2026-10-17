@@ -29,10 +29,22 @@
       > sudo /home/pi/mediaserver-build/setup-couchdb.bsh  # takes ??? minutes
 
 
+# Final step: when ready to take existing mediaserver offline and replace with this one
+   * edit local copies of:
+       - imp/fstab: remove old-mediaserver entry
+       - imp/hosts: remove old-mediaserver entry
+   * cleanup /mnt/passport/couchdb* area
+   * this build will point couchdb+clouseau at /mnt/passport/couchdb2/*, so:
+       - check imp/clouseau.conf
+       - check imp/couchdb-local.ini
+   * one final flash and setup-all.bsh invocation
+
+
+
 To Do:
    - couchdb
    - clouseau
-   - networking
+   - networking (exports)
    - wireguard
    - apache
    - static ip config
