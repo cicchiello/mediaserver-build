@@ -13,8 +13,9 @@
    * install the mediaserver-build repo:
       > git clone https://github.com/cicchiello/mediaserver-build.git
    * manually place couchdb-secrets.sh in that directory
-      > scp imp/clouseau.conf imp/couchdb-secrets.sh imp/fstab imp/hosts imp/mounts imp/network-config.sh \
-           pi@mediaserver-build:/home/pi/mediaserver-build/imp
+      > scp imp/couchdb-local.ini imp/couchdb-10-admins.inin imp/exports imp/clouseau.conf \
+            imp/couchdb-secrets.sh imp/fstab imp/hosts imp/mounts imp/network-config.sh \
+            pi@mediaserver-build:/home/pi/mediaserver-build/imp
 
 
 # Step 2: setups on device
