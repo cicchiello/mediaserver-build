@@ -51,31 +51,27 @@ couchdb couchdb/adminpass_again seen true
 EOF
 
 
+log=/tmp/setup-couchdb.log
+
 # 3. Install CouchDB completely non-interactively
 apt update > /tmp/couchdb-apt-update.log
-DEBIAN_FRONTEND=noninteractive apt-get install -y couchdb > /tmp/install-couchdb
+DEBIAN_FRONTEND=noninteractive apt-get install -y couchdb > ${log}
 
 
-# confirm couchdb install 
-curl http://127.0.0.0:5984
+# confirm couchdb install
+echo "INFO: Testing couchdb life:"
+curl -s http://127.0.0.1:5984
+echo "INFO: ...looks good"
 
 
 ##
-## Java 8.x install
+## Java install
 ##
-
-##### Add the Adoptium signing key and repository
-####mkdir -p /etc/apt/keyrings
-####curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc > /dev/null
-####
-####echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list > /dev/null
-####
-##### Update and install Java 8 JRE
-####apt install -y temurin-8-jre unzip
 
 # Install the official, native Java 21 headless runtime package
-apt update
-sudo apt install -y openjdk-21-jre-headless
+apt update >> ${log}
+apt install -y openjdk-21-jre-headless >> ${log}
+
 
 ##
 ## Clouseau install
@@ -86,26 +82,16 @@ sudo apt install -y openjdk-21-jre-headless
 CLOUSEAU_VERSION="3.5.0"
 CLOUSEAU_ROOT_URL="https://github.com/cloudant-labs/clouseau/releases/download"
 CLOUSEAU_URL="${CLOUSEAU_ROOT_URL}/${CLOUSEAU_VERSION}/clouseau-${CLOUSEAU_VERSION}-dist.zip"
-wget ${CLOUSEAU_URL} -O /tmp/clouseau.zip 
+wget -q ${CLOUSEAU_URL} -O /tmp/clouseau.zip
 
 
 # Extract it to /opt
 unzip /tmp/clouseau.zip -d /opt/
-ln -s /opt/clouseau-${CLOUSEAU_VERSION} /opt/clouseau
+ln -sfn /opt/clouseau-${CLOUSEAU_VERSION} /opt/clouseau
 chown -R couchdb:couchdb /opt/clouseau-${CLOUSEAU_VERSION}
 
 # prepare clouseau.conf
-echo "DEBUG: Using COUCHDB_COOKIE=${COUCHDB_COOKIE}"
 cat ${dir}/clouseau.conf | sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE}/g" > /opt/clouseau/clouseau.conf
-echo "DEBUG: got past the clouseau.conf setup"
-
-##### prepare clouseau.ini
-####echo "DEBUG: Using COUCHDB_COOKIE=${COUCHDB_COOKIE}"
-####cat ${dir}/clouseau-example.ini | sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE}/g" > /opt/clouseau/clouseau.ini
-####echo "DEBUG: got past the clouseau.ini setup"
-
-# prepare clouseau's log4j
-cp ${dir}/clouseau-log4j.properties /opt/clouseau/log4j.properties
 
 # point couchdb at clouseau
 tee -a /opt/couchdb/etc/local.ini > /dev/null <<EOF
@@ -125,7 +111,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/opt/clouseau
-ExecStart=/bin/sh -c "java -server -Xmx2g -Dsun.net.inetaddr.ttl=30 -Dfile.encoding=UTF-8 -cp 'lib/*' com.cloudant.clouseau.Main clouseau.ini"
+ExecStart=/bin/sh -c "exec java -server -Xmx2g -Dsun.net.inetaddr.ttl=30 -Dsun.net.inetaddr.negative.ttl=30 -XX:+ExitOnOutOfMemoryError -XX:+UseG1GC -XX:+ParallelRefProcEnabled -jar clouseau_*_${CLOUSEAU_VERSION}.jar clouseau.conf"
 Restart=always
 RestartSec=5
 User=couchdb
@@ -144,22 +130,23 @@ systemctl start clouseau.service
 systemctl restart couchdb
 
 
-# {"all_nodes":["couchdb@127.0.0.1"],"cluster_nodes":["couchdb@127.0.0.1"]}
-# validate
-/tmp/expected <<EOF
-{
-  "all_nodes": [
-    "couchdb@127.0.0.1",
-    "clouseau@127.0.0.1"
-  ],
-  "cluster_nodes": [
-    "couchdb@127.0.0.1"
-  ]
-}
-EOF
-
-curl -s -u admin:${COUCHDB_PASSWORD} http://127.0.0.1:5984/_membership
-
+# validate: run a real search (clouseau doesn't show up in _membership)
+sleep 10
+cdb="-u admin:${COUCHDB_PASSWORD}"
+url=http://127.0.0.1:5984/clouseau-selftest
+curl -s ${cdb} -X DELETE ${url} > /dev/null
+curl -s ${cdb} -X PUT ${url} > /dev/null
+curl -s ${cdb} -X PUT ${url}/_design/t -H 'Content-Type: application/json' \
+     -d '{"indexes":{"all":{"index":"function(d){index(\"title\", d.title);}"}}}' > /dev/null
+curl -s ${cdb} -X PUT ${url}/doc1 -H 'Content-Type: application/json' -d '{"title":"hello clouseau"}' > /dev/null
+if curl -s ${cdb} "${url}/_design/t/_search/all?q=title:hello" | jq -e '.total_rows == 1' > /dev/null
+then
+    echo "INFO: clouseau search works"
+    curl -s ${cdb} -X DELETE ${url} > /dev/null
+else
+    echo "ERROR: clouseau search test failed; see: journalctl -u clouseau -n 50"
+    exit 1
+fi
 
 
 ##

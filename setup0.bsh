@@ -7,17 +7,18 @@ then
     exit
 fi
 
+log=/tmp/setup0.log
 t=$(date)
 echo "INFO: starting setup0 step: ${t}"
 
 echo "INFO: apt update"
-apt update > /tmp/apt-update.log 2>&1
+apt update > ${log}
 
 echo "INFO: apt upgrade"
-apt -y upgrade > /tmp/apt-upgrade.log 2>&1
+apt -y upgrade > ${log}
 
 echo "INFO: apt install xterm emacs ntfs-3g curl apt-transport-https gnupg jq"
-apt -y install xterm emacs ntfs-3g curl apt-transport-https gnupg jq > /tmp/apt-installs.log 2>&1
+apt -y install xterm emacs ntfs-3g curl apt-transport-https gnupg jq > ${log}
 
 t=$(date)
 echo "INFO: done setup0.bsh: ${t}"
