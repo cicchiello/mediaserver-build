@@ -1,6 +1,13 @@
 # ignore emacs stuff
 *~
+*#
+.#*
 
 
 # ignore installation-specific secrets
+clouseau.conf
 couchdb-secrets.sh
+fstab
+hosts
+mounts
+network-config.sh

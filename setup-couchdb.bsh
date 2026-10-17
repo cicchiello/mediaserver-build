@@ -26,12 +26,12 @@ echo "deb [signed-by=/usr/share/keyrings/couchdb-archive-keyring.gpg] https://ap
 | tee /etc/apt/sources.list.d/couchdb.list >/dev/null
 
 
-# load installation-specific secrets (${dir}/couchdb-secrets.sh isn't placed in the repo)
+# load installation-specific secrets (${dir}/imp/couchdb-secrets.sh isn't placed in the repo)
 #   Defines:
 #      COUCHDB_PASSWORD
 #      COUCHDB_COOKIE
 #      
-source ${dir}/couchdb-secrets.sh
+source ${dir}/imp/couchdb-secrets.sh
 
 
 # 2. Pre-seed the configuration answers into the debconf database
@@ -54,8 +54,8 @@ EOF
 log=/tmp/setup-couchdb.log
 
 # 3. Install CouchDB completely non-interactively
-apt update > /tmp/couchdb-apt-update.log
-DEBIAN_FRONTEND=noninteractive apt-get install -y couchdb > ${log}
+apt-get update > /tmp/couchdb-apt-update.log
+DEBIAN_FRONTEND=noninteractive apt-get install -y couchdb > ${log} 2>&1
 
 
 # confirm couchdb install
@@ -69,8 +69,8 @@ echo "INFO: ...looks good"
 ##
 
 # Install the official, native Java 21 headless runtime package
-apt update >> ${log}
-apt install -y openjdk-21-jre-headless >> ${log}
+apt-get update >> ${log}
+apt-get install -y openjdk-21-jre-headless >> ${log}
 
 
 ##
@@ -82,16 +82,16 @@ apt install -y openjdk-21-jre-headless >> ${log}
 CLOUSEAU_VERSION="3.5.0"
 CLOUSEAU_ROOT_URL="https://github.com/cloudant-labs/clouseau/releases/download"
 CLOUSEAU_URL="${CLOUSEAU_ROOT_URL}/${CLOUSEAU_VERSION}/clouseau-${CLOUSEAU_VERSION}-dist.zip"
-wget -q ${CLOUSEAU_URL} -O /tmp/clouseau.zip
+wget -q ${CLOUSEAU_URL} -O /tmp/clouseau.zip >> ${log} 2>&1
 
 
 # Extract it to /opt
-unzip /tmp/clouseau.zip -d /opt/
+unzip /tmp/clouseau.zip -d /opt/ >> ${log} 2>&1
 ln -sfn /opt/clouseau-${CLOUSEAU_VERSION} /opt/clouseau
 chown -R couchdb:couchdb /opt/clouseau-${CLOUSEAU_VERSION}
 
 # prepare clouseau.conf
-cat ${dir}/clouseau.conf | sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE}/g" > /opt/clouseau/clouseau.conf
+cat ${dir}/imp/clouseau.conf | sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE}/g" > /opt/clouseau/clouseau.conf
 
 # point couchdb at clouseau
 tee -a /opt/couchdb/etc/local.ini > /dev/null <<EOF

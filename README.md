@@ -31,6 +31,7 @@
 To Do:
    - couchdb
    - clouseau
+   - networking
    - wireguard
    - apache
    - static ip config

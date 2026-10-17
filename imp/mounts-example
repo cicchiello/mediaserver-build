@@ -1,0 +1,3 @@
+# add explicit mount points (usually corresponding to entries in /etc/fstab )
+/mnt/my-mount-point0
+/mnt/my-mount-point1

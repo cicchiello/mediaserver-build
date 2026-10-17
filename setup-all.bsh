@@ -9,6 +9,9 @@ fi
 
 d=$(dirname $0)
 
+echo "INFO: setting up the networking"
+${d}/setup-network.bsh
+
 echo "INFO: invoking ${d}/setup0.bsh"
 ${d}/setup0.bsh
 

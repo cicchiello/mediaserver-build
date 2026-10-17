@@ -1,0 +1,10 @@
+# fill with example /etc/fstab entries, but none of the ones that are there by default in a fresh image
+
+# one locally mounted example
+UUID=5CD6F5FDD6F5D76C /mnt/some_mount ntfs3 defaults,noatime,prealloc,uid=1000,gid=1000,umask=000,dmask=000,fmask=000,nofail 0 0
+
+# one network mounted example
+nas-host:/share-name /mnt/share-name nfs defaults,vers=4,noexec,nosuid,_netdev,nofail 0 0
+
+# a swapfile is not a swap partition, no line here
+#   use  dphys-swapfile swap[on|off]  for that
