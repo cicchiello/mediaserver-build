@@ -14,6 +14,8 @@ echo "INFO: starting CouchDb install: ${t}"
 ## CouchDb install
 ##
 
+echo "INFO: CouchDb install"
+
 dir=$(dirname $0)
 
 curl https://couchdb.apache.org/repo/keys.asc | gpg --dearmor | tee /usr/share/keyrings/couchdb-archive-keyring.gpg >/dev/null 2>&1
@@ -50,7 +52,7 @@ EOF
 
 
 # 3. Install CouchDB completely non-interactively
-apt update
+apt update > /tmp/couchdb-apt-update.log
 DEBIAN_FRONTEND=noninteractive apt-get install -y couchdb > /tmp/install-couchdb
 
 
