@@ -74,6 +74,9 @@ then
     nmcli connection up mediaserver-wifi || echo "WARN: wifi didn't come up (is the SSID in range?)"
 fi
 echo "TRACE 4"
+
+exit
+
 if [ -n "${ETH_IFACE}" ]
 then
     echo "INFO: bringing up ${ETH_IFACE}"
