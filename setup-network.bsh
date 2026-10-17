@@ -7,43 +7,50 @@ then
     exit 1
 fi
 
-t=$(date)
-echo "INFO: starting network setup: ${t}"
-
-dir=$(dirname $0)
-
-# load installation-specific settings (${dir}/network-config.sh isn't placed in the repo)
-#   Defines: ETH_IFACE ETH_ADDRESS ETH_GATEWAY ETH_DNS
-#            WIFI_IFACE WIFI_SSID WIFI_PASSWORD WIFI_COUNTRY WIFI_ADDRESS WIFI_GATEWAY
-source ${dir}/imp/network-config.sh
-
 if ! systemctl is-active --quiet NetworkManager
 then
     echo "ERROR: NetworkManager isn't running"
     exit 1
 fi
 
+
+t=$(date)
+echo "INFO: starting network setup: ${t}"
+
+dir=$(dirname $0)
+
+
+##
+## Load installation-specific settings
+##   Defines: ETH_IFACE ETH_ADDRESS ETH_GATEWAY ETH_DNS
+##            WIFI_IFACE WIFI_SSID WIFI_PASSWORD WIFI_COUNTRY WIFI_ADDRESS WIFI_GATEWAY
+##
+## Note: ${dir}/network-config.sh isn't placed in the repo; but see network-config-example.lsh
+##       for reference
+source ${dir}/imp/network-config.sh
+
 # replace any existing profile of the same name, so reruns are harmless
 recreate() {
     nmcli -t -f NAME connection show | grep -qx "$1" && nmcli connection delete "$1" > /dev/null
 }
 
-##
-## Ethernet (static)
-##
 
-echo "INFO: configuring ${ETH_IFACE} as ${ETH_ADDRESS}"
-recreate mediaserver-eth
-echo "TRACE 1"
-nmcli connection add type ethernet ifname ${ETH_IFACE} con-name mediaserver-eth \
-      ipv4.method manual ipv4.addresses ${ETH_ADDRESS} ipv4.gateway ${ETH_GATEWAY} \
-      ipv4.dns "${ETH_DNS}" ipv6.method disabled connection.autoconnect yes > /dev/null
-echo "TRACE 2"
+##
+## Ethernet (possibly static)
+##
+if [ -n "${ETH_IFACE}" ]
+then 
+    echo "INFO: configuring ${ETH_IFACE} as ${ETH_ADDRESS}"
+    recreate mediaserver-eth
+    nmcli connection add type ethernet ifname ${ETH_IFACE} con-name mediaserver-eth \
+          ipv4.method manual ipv4.addresses ${ETH_ADDRESS} ipv4.gateway ${ETH_GATEWAY} \
+          ipv4.dns "${ETH_DNS}" ipv6.method disabled connection.autoconnect yes > /dev/null
+fi
+
 
 ##
 ## WiFi
 ##
-
 if [ -n "${WIFI_IFACE}" ]
 then
     echo "INFO: configuring ${WIFI_IFACE} for ${WIFI_SSID}"
@@ -61,44 +68,34 @@ then
               ipv4.gateway ${WIFI_GATEWAY} ipv4.dns "${ETH_DNS}"
     fi
 fi
-echo "TRACE 3"
 
 
 ##
-## Bring up (ethernet last-but-one: a static change over ssh may drop this session)
+## Done' Bring up ifaces yet (leave that to the user, manually) 'cause we'll likely lose connection;
+## just report state
 ##
-
-if [ -n "${WIFI_IFACE}" ]
-then
-    echo "INFO: bringing up ${WIFI_IFACE}"
-    nmcli connection up mediaserver-wifi || echo "WARN: wifi didn't come up (is the SSID in range?)"
-fi
-echo "TRACE 4"
-
-exit
-
-if [ -n "${ETH_IFACE}" ]
-then
-    echo "INFO: bringing up ${ETH_IFACE}"
-    nmcli connection up mediaserver-eth  || echo "WARN: ethernet didn't come up (is a cable plugged in?)"
-fi
-
-echo "INFO: current state:"
+## (Leave's whatever connection we're currently using alone.)
+##
+echo "INFO: current IFACE state:"
 nmcli -f NAME,DEVICE,STATE connection show --active
 ip -4 -br addr
 
 
-# Update /etc/hosts 
+##
+## /etc/hosts
+##
 host=$(hostname)
 echo "127.0.1.1 ${host}" >> /etc/cloud/templates/hosts.debian.tmpl
 cat "${dir}/imp/hosts" >> /etc/cloud/templates/hosts.debian.tmpl
 
 cloud-init single --name cc_update_etc_hosts
+echo "INFO: defined /etc/hosts"
 
 
-# establsh mount points
+##
+## mount points
+##
 file="${dir}/imp/mounts"
-
 while IFS= read -r mount; do
     if [[ "$mount" == "#"* ]]; then
         continue
@@ -110,10 +107,13 @@ while IFS= read -r mount; do
 done < "$file"
 
 
-# setup fstab
+##
+## setup fstab
+##
 cat "${dir}/imp/fstab" >> /etc/fstab
 
 mount -a
+echo "INFO: defined /etc/fastab"
 
 
 ##
