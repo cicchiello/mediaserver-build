@@ -34,9 +34,11 @@ recreate() {
 
 echo "INFO: configuring ${ETH_IFACE} as ${ETH_ADDRESS}"
 recreate mediaserver-eth
+echo "TRACE 1"
 nmcli connection add type ethernet ifname ${ETH_IFACE} con-name mediaserver-eth \
       ipv4.method manual ipv4.addresses ${ETH_ADDRESS} ipv4.gateway ${ETH_GATEWAY} \
       ipv4.dns "${ETH_DNS}" ipv6.method disabled connection.autoconnect yes > /dev/null
+echo "TRACE 2"
 
 ##
 ## WiFi
@@ -59,6 +61,7 @@ then
               ipv4.gateway ${WIFI_GATEWAY} ipv4.dns "${ETH_DNS}"
     fi
 fi
+echo "TRACE 3"
 
 
 ##
@@ -67,10 +70,13 @@ fi
 
 if [ -n "${WIFI_IFACE}" ]
 then
+    echo "INFO: bringing up ${WIFI_IFACE}"
     nmcli connection up mediaserver-wifi || echo "WARN: wifi didn't come up (is the SSID in range?)"
 fi
+echo "TRACE 4"
 if [ -n "${ETH_IFACE}" ]
 then
+    echo "INFO: bringing up ${ETH_IFACE}"
     nmcli connection up mediaserver-eth  || echo "WARN: ethernet didn't come up (is a cable plugged in?)"
 fi
 
