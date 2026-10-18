@@ -13,3 +13,4 @@ mounts
 network-config.sh
 couchdb-local.ini
 couchdb-10-admins.ini
+dvr-config.sh
