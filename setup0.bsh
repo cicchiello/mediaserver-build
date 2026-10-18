@@ -9,6 +9,7 @@ fi
 
 log=/tmp/setup0.log
 t=$(date)
+dir=$(dirname $0)
 echo "INFO: starting setup0 step: ${t}"
 
 echo "INFO: apt-get update"
@@ -19,6 +20,10 @@ apt-get -y upgrade > ${log}
 
 echo "INFO: apt-get install xterm emacs ntfs-3g nfs-common nfs-kernel-server curl apt-transport-https gnupg jq"
 apt-get -y install xterm emacs ntfs-3g nfs-common nfs-kernel-server curl apt-transport-https gnupg jq > ${log}
+
+pitools_dir=${dir}/../pitools
+git clone https://github.com/cicchiello/pitools.git ${pitools_dir}
+chowm -R pi:pi ${pitools_dir}
 
 t=$(date)
 echo "INFO: done setup0.bsh: ${t}"

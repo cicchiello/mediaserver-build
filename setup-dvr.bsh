@@ -22,12 +22,13 @@ echo "INFO: apt-get update"
 apt-get update > ${log}
 
 echo "INFO: apt-get install xterm emacs ntfs-3g nfs-common nfs-kernel-server python3-pip curl apt-transport-https gnupg jq"
-apt-get -y install python3-pip php php-pear php-mysql php8.4-curl php-gd >> ${log}
+apt-get -y install python3-psutil python3-pip php php-pear php-mysql php8.4-curl php-gd >> ${log}
 apt-get -y install apache2 apache2-utils libapache2-mod-php >> ${log}
 echo "Apache installations done"
 
-dvr_dir=$HOME/dvr
+dvr_dir=${dir}/../dvr
 git clone https://github.com/cicchiello/dvr.git ${dvr_dir}
+chown -R pi:pi ${dvr_dir}
 
 apt-get -y install python3-psutil python3-configparser
 echo "INFO: Python packages installed"
