@@ -26,12 +26,14 @@ apt-get -y install python3-pip php php-pear php-mysql php8.4-curl php-gd >> ${lo
 apt-get -y install apache2 apache2-utils libapache2-mod-php >> ${log}
 echo "Apache installations done"
 
-git clone https://github.com/cicchiello/dvr.git
-dvr_dir=${dir}/dvr
+dvr_dir=$HOME/dvr
+git clone https://github.com/cicchiello/dvr.git ${dvr_dir}
 
-pip3 install psutil
-pip3 install configparser
+apt-get -y install python3-psutil python3-configparser
 echo "INFO: Python packages installed"
+
+cp ${dir}/imp/dvr-config.ini ${dvr_dir}/py/config.ini
+
 
 mkdir -p "${DVR_FS_MOUNT}/dvr"
 mkdir -p "${DVR_FS_MOUNT}/dvr/raw"
