@@ -9,6 +9,7 @@ fi
 
 log=/tmp/setup-dvr.log
 dir=$(dirname $0)
+username=$(basename ${dir})
 
 ##
 ## Load installation-specific settings
@@ -26,7 +27,7 @@ apt-get -y install python3-psutil python3-pip php php-pear php-mysql php8.4-curl
 apt-get -y install apache2 apache2-utils libapache2-mod-php >> ${log}
 echo "Apache installations done"
 
-dvr_dir=${dir}/../dvr
+dvr_dir=/home/${username}//dvr
 git clone https://github.com/cicchiello/dvr.git ${dvr_dir}
 chown -R pi:pi ${dvr_dir}
 
