@@ -44,7 +44,7 @@ mkdir -p "${DVR_FS_MOUNT}/dvr/library"
 mkdir -p "${DVR_FS_MOUNT}/dvr/trashcan"
 
 mkdir -p "/home/${username}/logs"
-chown "${username}:${username}" "/home/${username}/log"
+chown "${username}:${username}" "/home/${username}/logs"
 
 ln -s "${DVR_FS_MOUNT}/dvr/raw" "${dvr_dir}/py/raw"
 ln -s "${DVR_FS_MOUNT}/dvr/compressed" "${dvr_dir}/py/compressed"

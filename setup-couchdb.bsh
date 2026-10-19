@@ -100,7 +100,7 @@ chown -R couchdb:couchdb /opt/clouseau-${CLOUSEAU_VERSION}
 
 # prepare clouseau.conf
 cat ${dir}/imp/clouseau.conf | \
-    sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE}/g" \
+    sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE}/g" | \
     sed "s|COUCHDB_FS|${COUCHDB_FS}|g" \
 	> /opt/clouseau/clouseau.conf
 
