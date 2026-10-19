@@ -65,7 +65,6 @@ cat ${dir}/imp/couchdb-local.ini | sed "s/COUCHDB_FS/${COUCHDB_FS}/g" > /opt/cou
 cp ${dir}/imp/couchdb-10-admins.ini /opt/couchdb/etc/local.d/10-admins.ini
 
 chown couchdb:couchdb /opt/couchdb/etc/local.ini
-chown -R couchdb:couchdb /mnt/ssd/couchdb2
 
 
 # confirm couchdb install
@@ -84,6 +83,22 @@ apt-get install -y openjdk-21-jre-headless >> ${log}
 
 
 
+##
+## Clouseau install
+##
+
+# Fetch the Clouseau package (adjust the version if a newer specific target is needed)
+#  example url: https://github.com/cloudant-labs/clouseau/releases/download/3.5.0/clouseau-3.5.0-dist.zip
+wget -q ${CLOUSEAU_URL} -O /tmp/clouseau.zip >> ${log} 2>&1
+ 
+ 
+# Extract it to /opt                                                                       
+unzip /tmp/clouseau.zip -d /opt/ >> ${log} 2>&1
+ln -sfn /opt/clouseau-${CLOUSEAU_VERSION} /opt/clouseau
+chown -R couchdb:couchdb /opt/clouseau-${CLOUSEAU_VERSION}
+
+# prepare clouseau.conf
+cat ${dir}/imp/clouseau.conf | sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE}/g" > /opt/clouseau/clouseau.conf
 
 # setup clouseau to be started by systemd
 tee /etc/systemd/system/clouseau.service > /dev/null <<EOF
