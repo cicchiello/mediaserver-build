@@ -9,12 +9,21 @@ fi
 
 log=/tmp/setup0.log
 t=$(date)
-dir=$(dirname $0)
+dir=$(cd -- "$(dirname -- "$0")" && pwd)
+username=$(basename $(dirname ${dir}))
 
-username=$(basename ${dir})
 echo "DEBUG: username: ${username}"
 
 echo "INFO: starting setup0 step: ${t}"
+
+# Setup locale stuff (without going thru raspi-config)
+# 1. Un-comment the desired locale in the configuration file
+sed -i 's/^# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+# 2. Compile and generate the new locale
+locale-gen
+# 3. Set the system-wide default language/locale
+localectl set-locale LANG=en_US.UTF-8
+echo "INFO: locale stuff setup"
 
 echo "INFO: apt-get update"
 apt-get update > ${log}
@@ -27,7 +36,7 @@ apt-get -y install xterm emacs ntfs-3g nfs-common nfs-kernel-server curl apt-tra
 
 pitools_dir=/home/${username}/pitools
 git clone https://github.com/cicchiello/pitools.git ${pitools_dir}
-chowm -R pi:pi ${pitools_dir}
+chown -R pi:pi ${pitools_dir}
 
 t=$(date)
 echo "INFO: done setup0.bsh: ${t}"

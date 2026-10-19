@@ -17,7 +17,7 @@ fi
 t=$(date)
 echo "INFO: starting network setup: ${t}"
 
-dir=$(dirname $0)
+dir=$(cd -- "$(dirname -- "$0")" && pwd)
 
 
 ##

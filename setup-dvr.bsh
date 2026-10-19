@@ -8,8 +8,8 @@ then
 fi
 
 log=/tmp/setup-dvr.log
-dir=$(dirname $0)
-username=$(basename ${dir})
+dir=$(cd -- "$(dirname -- "$0")" && pwd)
+username=$(basename $(dirname ${dir}))
 
 ##
 ## Load installation-specific settings
