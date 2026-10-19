@@ -27,11 +27,11 @@ apt-get -y install python3-psutil python3-pip php php-pear php-mysql php8.4-curl
 apt-get -y install apache2 apache2-utils libapache2-mod-php >> ${log}
 echo "Apache installations done"
 
-dvr_dir=/home/${username}//dvr
-git clone https://github.com/cicchiello/dvr.git ${dvr_dir}
-chown -R pi:pi ${dvr_dir}
+dvr_dir=/home/${username}/dvr
+git clone https://github.com/cicchiello/dvr.git "${dvr_dir}"
+chown -R "${username}:${username}" "${dvr_dir}"
 
-apt-get -y install python3-psutil python3-configparser
+apt-get -y install python3-psutil
 echo "INFO: Python packages installed"
 
 cp ${dir}/imp/dvr-config.ini ${dvr_dir}/py/config.ini
@@ -43,6 +43,9 @@ mkdir -p "${DVR_FS_MOUNT}/dvr/compressed"
 mkdir -p "${DVR_FS_MOUNT}/dvr/library"
 mkdir -p "${DVR_FS_MOUNT}/dvr/trashcan"
 
+mkdir -p "/home/${username}/logs"
+chown "${username}:${username}" "/home/${username}/log"
+
 ln -s "${DVR_FS_MOUNT}/dvr/raw" "${dvr_dir}/py/raw"
 ln -s "${DVR_FS_MOUNT}/dvr/compressed" "${dvr_dir}/py/compressed"
 ln -s "${DVR_FS_MOUNT}/dvr/library" "${dvr_dir}/py/library"
@@ -51,21 +54,18 @@ ln -s "${DVR_FS_MOUNT}/dvr/trashcan" "${dvr_dir}/py/trashcan"
 ln -s ${dvr_dir}/www /var/www/html/dvr
 echo "INFO: DVR webserver directory setup"
 
-echo "<?php phpinfo(); ?>" > /var/www/html/dvr/index.php
-echo "INFO: DVR webpage setup"
+echo "INFO: DVR web site is setup"
 
-cp ${dvr_dir}/etc/rc.local /etc/rc.local
+cp ${dir}/imp/rc.local /etc/rc.local
 chmod a+x /etc/rc.local
 chown root:root /etc/rc.local
 echo "INFO: /etc/rc.local setup"
 
-mkdir -p ~/logs
-
 
 inifile="${dvr_dir}/www/config.ini"
-echo "; This is the dvr web service ini file" > ${inifile}
-echo "couchbase = ${DVR_COUCHDB}" >> ${inifile}
-chown pi:pi ${inifile}
+echo "; This is the dvr web service ini file" > "${inifile}"
+echo "couchbase = ${DVR_COUCHDB}" >> "${inifile}"
+chown "${username}:${username}" "${inifile}"
 
 
 echo "INFO: DVR setup done!"

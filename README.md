@@ -30,6 +30,10 @@
       > sudo /home/pi/mediaserver-build/setup-couchdb.bsh  # takes ??? minutes
 
 
+# NOTE: If any of the above doesn't complete, or if there are any other problems observed, please,
+# PLEASE, please fix it in the source, reflash an sdcard, and run again!  Future you will thank you!
+
+
 # Final step: when ready to take existing mediaserver offline and replace with this one
    * edit local copies of:
        - imp/fstab: remove old-mediaserver entry
