@@ -25,7 +25,8 @@ apt-get update > ${log}
 echo "INFO: apt-get install xterm emacs ntfs-3g nfs-common nfs-kernel-server python3-pip curl apt-transport-https gnupg jq"
 apt-get -y install python3-psutil python3-pip php php-pear php-mysql php8.4-curl php-gd >> ${log}
 apt-get -y install apache2 apache2-utils libapache2-mod-php >> ${log}
-cat ${dir}/imp/apache2.conf /etc/apache2/apache2.conf
+mv /etc/apache2/apache2.conf /etc/apache2/apache2.conf.pristine
+cat ${dir}/imp/apache2.conf > /etc/apache2/apache2.conf
 
 echo "Apache installations done"
 
@@ -41,13 +42,15 @@ echo "INFO: Python packages installed"
 
 cat ${dir}/etc/dvr-py-config.ini | \
     sed "s/DVR_DB/${DVR_DB}/g" | \
-    sed "s/DVR_DB_URL/${DVR_DB_URL}/g" | \
+    sed "s|DVR_DB_URL|${DVR_DB_URL}|g" | \
     sed "s/USERNAME/${username}/g" > \
         ${dvr_dir}/py/config.ini
 cat ${dir}/etc/dvr-www-config.ini | \
-    sed "s/DVR_DB_URL/${DVR_DB_URL}/g" | \
+    sed "s|DVR_DB_URL|${DVR_DB_URL}|g" | \
     sed "s/DVR_DB/${DVR_DB}/g" > \
         ${dvr_dir}/www/config.ini
+chown ${username}:${username} ${dvr_dir}/www/config.ini
+chown ${username}:${username} ${dvr_dir}/py/config.ini
 
 mkdir -p "${DVR_FS_MOUNT}/dvr"
 mkdir -p "${DVR_FS_MOUNT}/dvr/raw"
