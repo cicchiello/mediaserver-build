@@ -29,9 +29,9 @@ ln -s ${photos_dir}/www /var/www/html/photos
 echo "INFO: Photos webserver directory setup"
 
 cat ${dir}/etc/photos-www-config.ini | \
-    sed "s|PHOTOS_DB_URL|S{PHOTOS_DB_URL}|g" | \
-    sed "s/PHOTOS_DB_USER/S{PHOTOS_DB_USER}/g" | \
-    sed "s/PHOTOS_DB_PSWD/S{PHOTOS_DB_PSWD}/g" > \
+    sed "s|PHOTOS_DB_URL|${PHOTOS_DB_URL}|g" | \
+    sed "s/PHOTOS_DB_USER/${PHOTOS_DB_USER}/g" | \
+    sed "s/PHOTOS_DB_PSWD/${PHOTOS_DB_PSWD}/g" > \
         "${photos_dir}/www/config.ini"
 chown -R ${username}:${username} "${photos_dir}"
 
@@ -41,5 +41,10 @@ cat ${dir}/etc/apache-db.jfcenterprises.com.conf | \
 cat ${dir}/etc/apache-media.jfcenterprises.com.conf | \
     sed "s/USERNAME/${username}/g" > \
 	"/etc/apache2/sites-available/media.jfcenterprises.com.conf"
+
+a2enmod ssl rewrite headers      # symlinks into /etc/apache2/mods-enabled/
+a2ensite media.jfcenterprises.com  # symlinks into /etc/apache2/sites-enabled/
+systemctl restart apache2        # a modules change needs a restart, not a reload
+
 
 echo "INFO: DVR setup done!"
