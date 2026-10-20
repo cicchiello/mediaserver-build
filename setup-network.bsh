@@ -18,6 +18,7 @@ t=$(date)
 echo "INFO: starting network setup: ${t}"
 
 dir=$(cd -- "$(dirname -- "$0")" && pwd)
+username=$(basename $(dirname ${dir}))
 
 
 ##
@@ -134,6 +135,26 @@ systemctl enable nfs-kernel-server
 exportfs -a
 exportfs -s
 echo "INFO: defined /etc/exports"
+
+
+##
+## Cloudflare setup
+##
+mkdir -p /home/${username}/bin
+cat bin/cloudflare-update.bsh | \
+    sed "s/CLOUDFLARE_ZONE_ID/${CLOUDFLARE_ZONE_ID}/g" | \
+    sed "s/CLOUDFLARE_API_TOKEN/${CLOUDFLARE_API_TOKEN}/g" > \
+        /home/${username}/bin
+chown -$ ${username}:${username} /home/${useranme}/bin
+chmod +x /home/${username}/bin/cloudflare-update.bsh
+
+mkdir -p /var/cache/dns-update
+chmod 700 /var/cache/dns-update
+
+
+# place the cloudflare-update.bsh on ***root's*** crontab
+crontab etc/root-crontab
+
 
 
 ##
