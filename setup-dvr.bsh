@@ -13,7 +13,7 @@ username=$(basename $(dirname ${dir}))
 
 ##
 ## Load installation-specific settings
-##   Defines: DVR_FS_MOUNT DVR_COUCHDB DVR_DB
+##   Defines: DVR_FS_MOUNT DVR_DB_URL DVR_DB
 ##
 ## Note: ${dir}/dvr-config.sh isn't placed in the repo; but see dvr-config-example.sh
 ##       for reference
@@ -36,10 +36,18 @@ chmod +x "/home/${username}"
 chmod +x "${dvr_dir}"
 
 apt-get -y install python3-psutil
+echo "INFO: Python packages installed" >> ${log}
 echo "INFO: Python packages installed"
 
-cat ${dir}/imp/dvr-py-config.ini | sed "s/DVR_DB/${DVR_DB}/g" > ${dvr_dir}/py/config.ini
-cat ${dir}/imp/dvr-www-config.ini | sed "s/DVR_DB/${DVR_DB}/g" > ${dvr_dir}/www/config.ini
+cat ${dir}/etc/dvr-py-config.ini | \
+    sed "s/DVR_DB/${DVR_DB}/g" | \
+    sed "s/DVR_DB_URL/${DVR_DB_URL}/g" | \
+    sed "s/USERNAME/${username}/g" > \
+        ${dvr_dir}/py/config.ini
+cat ${dir}/etc/dvr-www-config.ini | \
+    sed "s/DVR_DB_URL/${DVR_DB_URL}/g" | \
+    sed "s/DVR_DB/${DVR_DB}/g" > \
+        ${dvr_dir}/www/config.ini
 
 mkdir -p "${DVR_FS_MOUNT}/dvr"
 mkdir -p "${DVR_FS_MOUNT}/dvr/raw"
@@ -57,19 +65,19 @@ ln -s "${DVR_FS_MOUNT}/dvr/trashcan" "${dvr_dir}/py/trashcan"
 
 ln -s ${dvr_dir}/www /var/www/html/dvr
 echo "INFO: DVR webserver directory setup"
+echo "INFO: DVR webserver directory setup" >> ${log}
 
 echo "INFO: DVR web site is setup"
+echo "INFO: DVR web site is setup" >> ${log}
 
-cp ${dir}/imp/rc.local /etc/rc.local
+cat ${dir}/etc/rc.local | \
+    sed "s/USERNAME/${username}/g" > \
+        /etc/rc.local
 chmod a+x /etc/rc.local
 chown root:root /etc/rc.local
 echo "INFO: /etc/rc.local setup"
 
 
-inifile="${dvr_dir}/www/config.ini"
-echo "; This is the dvr web service ini file" > "${inifile}"
-echo "couchbase = ${DVR_COUCHDB}" >> "${inifile}"
-chown "${username}:${username}" "${inifile}"
-
-
 echo "INFO: DVR setup done!"
+echo "INFO: DVR setup done!" >> ${log}
+

@@ -99,10 +99,10 @@ ln -sfn /opt/clouseau-${CLOUSEAU_VERSION} /opt/clouseau
 chown -R couchdb:couchdb /opt/clouseau-${CLOUSEAU_VERSION}
 
 # prepare clouseau.conf
-cat ${dir}/imp/clouseau.conf | \
+cat ${dir}/etc/couchdb-clouseau.conf | \
     sed "s/COUCHDB_COOKIE/${COUCHDB_COOKIE}/g" | \
-    sed "s|COUCHDB_FS|${COUCHDB_FS}|g" \
-	> /opt/clouseau/clouseau.conf
+    sed "s|COUCHDB_FS|${COUCHDB_FS}|g" > \
+	/opt/clouseau/clouseau.conf
 
 # setup clouseau to be started by systemd
 tee /etc/systemd/system/clouseau.service > /dev/null <<EOF

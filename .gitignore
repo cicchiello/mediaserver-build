@@ -5,17 +5,15 @@
 
 
 # ignore installation-specific secrets
-clouseau.conf
 couchdb-secrets.sh
+couchdb-local.ini
+couchdb-10-admins.ini
 fstab
 hosts
 mounts
+exports
 network-config.sh
-couchdb-local.ini
-couchdb-10-admins.ini
 dvr-config.sh
-rc.local
-dvr-py-config.ini
-dvr-www-config.ini
 apache2.conf
-photos-www-config.ini
+photos-config.sh
+*.original

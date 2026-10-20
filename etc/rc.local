@@ -19,6 +19,6 @@ fi
 
 # the following could include "--record" and/or "--compress"
 # (typically, I've had different hosts running compression and recording)
-/home/pi/dvr/bin/startup.bsh --record --compress &
+/home/USERNAME/dvr/bin/startup.bsh --record &
 
 exit 0

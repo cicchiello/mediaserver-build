@@ -11,6 +11,14 @@ log=/tmp/setup-photos.log
 dir=$(cd -- "$(dirname -- "$0")" && pwd)
 username=$(basename $(dirname ${dir}))
 
+##
+## Load installation-specific settings
+##   Defines: PHOTOS_DB_URL PHOTOS_DB_USER PHOTOS_DB_PSWD
+##
+## Note: ${dir}/dvr-config.sh isn't placed in the repo; but see dvr-config-example.sh
+##       for reference
+source ${dir}/imp/photos-config.sh
+
 photos_dir=/home/${username}/photos
 git clone https://github.com/cicchiello/photos.git "${photos_dir}"
 chown -R "${username}:${username}" "${photos_dir}"
@@ -20,7 +28,11 @@ chmod +x "${photos_dir}"
 ln -s ${photos_dir}/www /var/www/html/photos
 echo "INFO: Photos webserver directory setup"
 
-cat ${dir}/imp/photos-www-config.ini "${photos_dir}/www/config.ini"
+cat ${dir}/etc/photos-www-config.ini \
+    sed "s/PHOTOS_DB_URL/S{PHOTOS_DB_URL}/g" | \
+    sed "s/PHOTOS_DB_USER/S{PHOTOS_DB_USER}/g" | \
+    sed "s/PHOTOS_DB_PSWD/S{PHOTOS_DB_PSWD}/g" > \
+        "${photos_dir}/www/config.ini"
 chmod -R ${username}:${username} "${photos_dir}"
 
 echo "INFO: DVR setup done!"
