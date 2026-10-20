@@ -1,0 +1,21 @@
+#!/bin/bash
+
+user=$(whoami)
+if [ "$user" != "root" ]
+then
+    echo "ERROR: Sorry, this shell script must be run as root; perhaps you meant to use \"sudo\"?"
+    exit 1
+fi
+
+log=/tmp/setup-photos.log
+dir=$(cd -- "$(dirname -- "$0")" && pwd)
+username=$(basename $(dirname ${dir}))
+
+photos_dir=/home/${username}/photos
+git clone https://github.com/cicchiello/photos.git "${photos_dir}"
+chown -R "${username}:${username}" "${photos_dir}"
+chmod +x "/home/${username}"
+chmod +x "${photos_dir}"
+
+ln -s ${photos_dir}/www /var/www/html/photos
+echo "INFO: Photos webserver directory setup"

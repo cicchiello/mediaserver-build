@@ -21,4 +21,7 @@ ${d}/setup-couchdb.bsh
 echo "INFO: invoking ${d}/setup-dvr.bsh"
 ${d}/setup-dvr.bsh
 
+echo "INFO: invoking ${d}/setup-photos.bsh"
+${d}/setup-photos.bsh
+
 echo "INFO: All done!"
