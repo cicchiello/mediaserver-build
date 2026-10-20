@@ -18,3 +18,4 @@ rc.local
 dvr-py-config.ini
 dvr-www-config.ini
 apache2.conf
+photos-www-config.ini

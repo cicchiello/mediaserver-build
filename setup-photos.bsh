@@ -19,3 +19,8 @@ chmod +x "${photos_dir}"
 
 ln -s ${photos_dir}/www /var/www/html/photos
 echo "INFO: Photos webserver directory setup"
+
+cat ${dir}/imp/photos-www-config.ini "${photos_dir}/www/config.ini"
+chmod -R ${username}:${username} "${photos_dir}"
+
+echo "INFO: DVR setup done!"
