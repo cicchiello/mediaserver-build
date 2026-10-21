@@ -142,7 +142,7 @@ echo "INFO: defined /etc/exports"
 ##
 mkdir -p /home/${username}/bin
 chown ${username}:${username} /home/${usernamme}/bin
-cat bin/cloudflare-update.bsh | \
+cat "${dir}/bin/cloudflare-update.bsh" | \
     sed "s/CLOUDFLARE_ZONE_ID/${CLOUDFLARE_ZONE_ID}/g" | \
     sed "s/CLOUDFLARE_API_TOKEN/${CLOUDFLARE_API_TOKEN}/g" > \
         /home/${username}/bin/cloudflare-update.bsh
@@ -151,10 +151,22 @@ chmod a+x /home/${username}/bin/cloudflare-update.bsh
 mkdir -p /var/cache/dns-update
 chmod 700 /var/cache/dns-update
 
+#
+# setup wireguard
+#
+cp "${dir}/imp/wg0.conf" /etc/wireguard/wg0.conf
+chmod 644 /etc/wireguard/wg0.conf
+chown root:root /etc/wireguard/wg0.conf
+
+mkdir -p /etc/wireguard/configs
+cp "${dir}/imp/wg-Abacus.conf" /etc/wireguard/configs/Abacus.conf
+chmod 644 /etc/wireguard/configs/Abacus.conf
+chown root:root /etc/wireguard/configs/Abacus.conf
+
+systemctl enable --now wg-quick@wg0
 
 # place the cloudflare-update.bsh on ***root's*** crontab
 crontab etc/root-crontab
-
 
 
 ##

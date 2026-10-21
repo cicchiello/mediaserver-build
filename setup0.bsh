@@ -31,8 +31,8 @@ apt-get update > ${log}
 echo "INFO: apt-get upgrade"
 apt-get -y upgrade > ${log}
 
-echo "INFO: apt-get install xterm emacs ntfs-3g nfs-common nfs-kernel-server curl apt-transport-https gnupg jq rpi-connect"
-apt-get -y install xterm emacs ntfs-3g nfs-common nfs-kernel-server curl apt-transport-https gnupg jq rpi-connect-lite > ${log}
+echo "INFO: apt-get install xterm emacs ntfs-3g nfs-common nfs-kernel-server curl apt-transport-https gnupg jq rpi-connect-lite wireguard"
+apt-get -y install xterm emacs ntfs-3g nfs-common nfs-kernel-server curl apt-transport-https gnupg jq rpi-connect-lite wireguard > ${log}
 
 pitools_dir=/home/${username}/pitools
 git clone https://github.com/cicchiello/pitools.git ${pitools_dir}

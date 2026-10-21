@@ -18,3 +18,5 @@ apache2.conf
 photos-config.sh
 *.original
 letsencrypt.tar.gz
+wg-Abacus.conf
+wg0.conf
