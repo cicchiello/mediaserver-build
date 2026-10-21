@@ -24,7 +24,7 @@ apt-get update > ${log}
 
 echo "INFO: apt-get install xterm emacs ntfs-3g nfs-common nfs-kernel-server python3-pip curl apt-transport-https gnupg jq"
 apt-get -y install python3-psutil python3-pip php php-pear php-mysql php8.4-curl php-gd >> ${log}
-apt-get -y install apache2 apache2-utils libapache2-mod-php >> ${log}
+apt-get -y install apache2 apache2-utils libapache2-mod-php certbot python3-certbot-dns-cloudflare >> ${log}
 mv /etc/apache2/apache2.conf /etc/apache2/apache2.conf.pristine
 cat ${dir}/imp/apache2.conf > /etc/apache2/apache2.conf
 

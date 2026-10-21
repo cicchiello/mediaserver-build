@@ -47,4 +47,4 @@ a2ensite media.jfcenterprises.com  # symlinks into /etc/apache2/sites-enabled/
 systemctl restart apache2        # a modules change needs a restart, not a reload
 
 
-echo "INFO: DVR setup done!"
+echo "INFO: Photos setup done!"
