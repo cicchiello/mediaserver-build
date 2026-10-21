@@ -35,6 +35,55 @@ cat ${dir}/etc/photos-www-config.ini | \
         "${photos_dir}/www/config.ini"
 chown -R ${username}:${username} "${photos_dir}"
 
+##
+## Let's Encrypt certificate (one cert covering db + media, via Cloudflare DNS-01)
+##   Needs: CLOUDFLARE_API_TOKEN from imp/network-config.sh
+##   Optional: imp/letsencrypt.tar.gz (a tar of /etc/letsencrypt, made with
+##             "tar -C / -czpf letsencrypt.tar.gz etc/letsencrypt").  If present it is
+##             restored instead of issuing a new cert, since Let's Encrypt limits
+##             duplicate certs to 5/week.
+##
+source ${dir}/imp/network-config.sh
+apt-get -y install certbot python3-certbot-dns-cloudflare >> ${log}
+
+mkdir -p /root/.secrets
+chmod 700 /root/.secrets
+install -m 600 /dev/null /root/.secrets/cloudflare.ini
+echo "dns_cloudflare_api_token = ${CLOUDFLARE_API_TOKEN}" > /root/.secrets/cloudflare.ini
+
+cert_live=/etc/letsencrypt/live
+cert_tar=${dir}/imp/letsencrypt.tar.gz
+if [ ! -d ${cert_live}/db.jfcenterprises.com ] && [ -f ${cert_tar} ]
+then
+    echo "INFO: restoring /etc/letsencrypt from ${cert_tar}"
+    tar -C / -xzpf ${cert_tar} || echo "ERROR: failed to restore ${cert_tar}"
+fi
+
+if [ ! -d ${cert_live}/db.jfcenterprises.com ]
+then
+    certbot certonly --non-interactive --agree-tos --register-unsafely-without-email \
+        --dns-cloudflare --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
+        -d db.jfcenterprises.com -d media.jfcenterprises.com \
+        || echo "ERROR: certbot failed; see /var/log/letsencrypt/letsencrypt.log"
+fi
+
+# media shares the db certificate (it is a SAN on it)
+[ -e ${cert_live}/media.jfcenterprises.com ] || \
+    ln -s ${cert_live}/db.jfcenterprises.com ${cert_live}/media.jfcenterprises.com
+
+# after every renewal: re-sync certs (the sync script reloads apache2/couchdb).
+# Written after any restore so the username matches this host.
+mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+cat > /etc/letsencrypt/renewal-hooks/deploy/photos-sync.sh <<EOF
+#!/bin/bash
+${photos_dir}/bin/sync-cloudflare-creds.sh
+EOF
+chmod +x /etc/letsencrypt/renewal-hooks/deploy/photos-sync.sh
+
+# initial copy to ${photos_dir}/letsencrypt
+${photos_dir}/bin/sync-cloudflare-creds.sh
+echo "INFO: certificates installed"
+
 cat ${dir}/etc/apache-db.jfcenterprises.com.conf | \
     sed "s/USERNAME/${username}/g" > \
 	"/etc/apache2/sites-available/db.jfcenterprises.com.conf"
@@ -45,6 +94,7 @@ cat ${dir}/etc/apache-media.jfcenterprises.com.conf | \
 a2enmod ssl rewrite headers      # symlinks into /etc/apache2/mods-enabled/
 a2ensite media.jfcenterprises.com  # symlinks into /etc/apache2/sites-enabled/
 systemctl restart apache2        # a modules change needs a restart, not a reload
+systemctl restart couchdb        # setup-couchdb ran before the cert existed
 
 
 echo "INFO: Photos setup done!"

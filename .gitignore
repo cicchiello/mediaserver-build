@@ -17,3 +17,4 @@ dvr-config.sh
 apache2.conf
 photos-config.sh
 *.original
+letsencrypt.tar.gz

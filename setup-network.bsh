@@ -148,16 +148,6 @@ cat bin/cloudflare-update.bsh | \
         /home/${username}/bin/cloudflare-update.bsh
 chmod a+x /home/${username}/bin/cloudflare-update.bsh
 
-mkdir -p /root/.secrets
-chmod 700 /root/.secrets
-echo "dns_cloudflare_api_token = ${CLOUDFLARE_API_TOKEN}" > /root/.secrets/cloudflare.ini
-chmod 600 /root/.secrets/cloudflare.ini
-
-certbot certonly --dns-cloudflare --dns-cloudflare-credentials /root/.secrets/cloudflare.ini -d db.jfcenterprises.com -d media.jfcenterprises.com
-
-ln -s /etc/letsencrypt/live/db.jfcenterprises.com /etc/letsencrypt/live/media.jfcenterprises.com
-/home/${username}/photos/bin/sync-cloudflare-creds.sh
-
 mkdir -p /var/cache/dns-update
 chmod 700 /var/cache/dns-update
 
