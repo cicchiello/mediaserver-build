@@ -66,6 +66,11 @@ ln -s "${DVR_FS_MOUNT}/dvr/compressed" "${dvr_dir}/py/compressed"
 ln -s "${DVR_FS_MOUNT}/dvr/library" "${dvr_dir}/py/library"
 ln -s "${DVR_FS_MOUNT}/dvr/trashcan" "${dvr_dir}/py/trashcan"
 
+ln -s "${DVR_FS_MOUNT}/dvr/raw" "${dvr_dir}/www/raw"
+ln -s "${DVR_FS_MOUNT}/dvr/compressed" "${dvr_dir}/www/compressed"
+ln -s "${DVR_FS_MOUNT}/dvr/library" "${dvr_dir}/www/library"
+ln -s "${DVR_FS_MOUNT}/dvr/trashcan" "${dvr_dir}/www/trashcan"
+
 ln -s ${dvr_dir}/www /var/www/html/dvr
 echo "INFO: DVR webserver directory setup"
 echo "INFO: DVR webserver directory setup" >> ${log}
