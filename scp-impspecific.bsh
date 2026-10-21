@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ "$#" != "1" ]
+then
+    echo "ERROR: wrong number of arguments supplied"
+    echo "Usage: $0 <user@ip-under-development>"
+    exit
+fi
+
+scp imp/letsencrypt.tar.gz imp/photos-config.sh imp/apache2.conf imp/couchdb-local.ini imp/couchdb-10-admins.ini imp/couchdb-secrets.sh imp/fstab imp/hosts imp/mounts imp/exports imp/dvr-config.sh imp/network-config.sh ${1}:/home/pi/mediaserver-build/imp
+

@@ -13,7 +13,7 @@ username=$(basename $(dirname ${dir}))
 
 ##
 ## Load installation-specific settings
-##   Defines: DVR_FS_MOUNT DVR_DB_URL DVR_DB
+##   Defines: DVR_FS_MOUNT DVR_DB_URL DVR_DBNAME
 ##
 ## Note: ${dir}/dvr-config.sh isn't placed in the repo; but see dvr-config-example.sh
 ##       for reference
@@ -41,13 +41,13 @@ echo "INFO: Python packages installed" >> ${log}
 echo "INFO: Python packages installed"
 
 cat ${dir}/etc/dvr-py-config.ini | \
-    sed "s/DVR_DB/${DVR_DB}/g" | \
+    sed "s/DVR_DBNAME/${DVR_DBNAME}/g" | \
     sed "s|DVR_DB_URL|${DVR_DB_URL}|g" | \
     sed "s/USERNAME/${username}/g" > \
         ${dvr_dir}/py/config.ini
 cat ${dir}/etc/dvr-www-config.ini | \
     sed "s|DVR_DB_URL|${DVR_DB_URL}|g" | \
-    sed "s/DVR_DB/${DVR_DB}/g" > \
+    sed "s/DVR_DBNAME/${DVR_DBNAME}/g" > \
         ${dvr_dir}/www/config.ini
 chown ${username}:${username} ${dvr_dir}/www/config.ini
 chown ${username}:${username} ${dvr_dir}/py/config.ini
