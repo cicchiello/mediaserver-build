@@ -108,7 +108,10 @@ cat ${dir}/etc/couchdb-clouseau.conf | \
 tee /etc/systemd/system/clouseau.service > /dev/null <<EOF
 [Unit]
 Description=Clouseau Full-Text Search Service for CouchDB
-After=network.target
+After=network.target couchdb.service
+# restarting couchdb also restarts epmd, which forgets clouseau's registration;
+# PartOf restarts clouseau along with couchdb so it re-registers
+PartOf=couchdb.service
 
 [Service]
 Type=simple
